@@ -13,7 +13,21 @@ func task() {
 }
 
 func taskWithParams(a int, b string) {
-	fmt.Println(a, b)
+	fmt.Println(a, b, time.Now().Format(time.RFC3339Nano))
+}
+
+func TestJob_Millisecond(t *testing.T) {
+	//defaultScheduler.Every(10).Milliseconds().Do(task)
+	defaultScheduler.Every(10).Milliseconds().Do(taskWithParams, 2, "hello")
+	defaultScheduler.Start()
+	time.Sleep(10 * time.Second)
+}
+
+func TestMilliSecond(*testing.T) {
+	//defaultScheduler.Every(1).Millisecond().Do(task)
+	defaultScheduler.Every(1).Millisecond().Do(taskWithParams, 1, "hello")
+	defaultScheduler.Start()
+	time.Sleep(10 * time.Second)
 }
 
 func TestSecond(*testing.T) {

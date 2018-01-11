@@ -40,7 +40,6 @@ func ChangeLoc(newLocation *time.Location) {
 const MAXJOBNUM = 10000
 
 type Job struct {
-
 	// pause interval * unit bettween runs
 	interval uint64
 
@@ -197,25 +196,24 @@ func (j *Job) scheduleNextRun() {
 
 	if j.period != 0 {
 		// translate all the units to the Seconds
-		j.nextRun = j.lastRun.Add(j.period * time.Second)
+		//j.nextRun = j.lastRun.Add(j.period * time.Second)
+		j.nextRun = j.lastRun.Add(j.period * time.Millisecond)
 	} else {
 		switch j.unit {
 		case "minutes":
-			j.period = time.Duration(j.interval * 60)
-			break
+			j.period = time.Duration(j.interval * 1000 * 60)
 		case "hours":
-			j.period = time.Duration(j.interval * 60 * 60)
-			break
+			j.period = time.Duration(j.interval * 1000 * 60 * 60)
 		case "days":
-			j.period = time.Duration(j.interval * 60 * 60 * 24)
-			break
+			j.period = time.Duration(j.interval * 1000 * 60 * 60 * 24)
 		case "weeks":
-			j.period = time.Duration(j.interval * 60 * 60 * 24 * 7)
-			break
+			j.period = time.Duration(j.interval * 1000 * 60 * 60 * 24 * 7)
 		case "seconds":
+			j.period = time.Duration(j.interval * 1000)
+		case "milliseconds":
 			j.period = time.Duration(j.interval)
 		}
-		j.nextRun = j.lastRun.Add(j.period * time.Second)
+		j.nextRun = j.lastRun.Add(j.period * time.Millisecond)
 	}
 }
 
@@ -225,6 +223,21 @@ func (j *Job) NextScheduledTime() time.Time {
 }
 
 // the follow functions set the job's unit with seconds,minutes,hours...
+
+// Set the unit with second
+func (j *Job) Millisecond() (job *Job) {
+	if j.interval != 1 {
+		panic("")
+	}
+	job = j.Milliseconds()
+	return
+}
+
+// Set the unit with seconds
+func (j *Job) Milliseconds() (job *Job) {
+	j.unit = "milliseconds"
+	return j
+}
 
 // Set the unit with second
 func (j *Job) Second() (job *Job) {
@@ -480,7 +493,8 @@ func (s *Scheduler) Clear() {
 // Add seconds ticker
 func (s *Scheduler) Start() chan bool {
 	stopped := make(chan bool, 1)
-	ticker := time.NewTicker(1 * time.Second)
+	//ticker := time.NewTicker(1 * time.Second)
+	ticker := time.NewTicker(1 * time.Millisecond)
 
 	go func() {
 		for {
