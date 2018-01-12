@@ -16,18 +16,37 @@ func taskWithParams(a int, b string) {
 	fmt.Println(a, b, time.Now().Format(time.RFC3339Nano))
 }
 
+func taskMilliseconds(strChan chan<- string) {
+	strChan <- time.Now().Format(time.RFC3339Nano)
+}
+
 func TestJob_Millisecond(t *testing.T) {
+	strChan := make(chan string)
+	go func() {
+		l := len("2018-01-12T07:52:44.172")
+		for s := range strChan {
+			fmt.Println(s[l-6:l])
+		}
+	}()
 	//defaultScheduler.Every(10).Milliseconds().Do(task)
-	defaultScheduler.Every(10).Milliseconds().Do(taskWithParams, 2, "hello")
+	//defaultScheduler.Every(2).Milliseconds().Do(taskWithParams, 2, "hello")
+	defaultScheduler.Every(10).Milliseconds().Do(taskMilliseconds, strChan)
 	defaultScheduler.Start()
-	time.Sleep(10 * time.Second)
+	time.Sleep(1 * time.Second)
 }
 
 func TestMilliSecond(*testing.T) {
+	strChan := make(chan string)
+	go func() {
+		l := len("2018-01-12T07:52:44.172")
+		for s := range strChan {
+			fmt.Println(s[l-6:l])
+		}
+	}()
 	//defaultScheduler.Every(1).Millisecond().Do(task)
-	defaultScheduler.Every(1).Millisecond().Do(taskWithParams, 1, "hello")
+	defaultScheduler.Every(1).Millisecond().Do(taskMilliseconds, strChan)
 	defaultScheduler.Start()
-	time.Sleep(10 * time.Second)
+	time.Sleep(2 * time.Second)
 }
 
 func TestSecond(*testing.T) {
